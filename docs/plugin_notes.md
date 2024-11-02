@@ -26,4 +26,4 @@ This page contains miscellaneous notes on developing a plugin.
 
 [https://github.com/adamrtalbot/nf-select/pull/3](https://github.com/adamrtalbot/nf-select/pull/3)
 
-Now I had the template in place, this was quite easy. It's straightforward Groovy and while not perfect, it was pretty straightforward.
+Now I had the template in place, this was quite easy. It's straightforward Groovy and while not perfect, it was pretty straightforward. I added a slightly pointless method to make my life easier.
