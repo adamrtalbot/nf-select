@@ -37,7 +37,7 @@ class SelectFunctions extends PluginExtensionPoint{
      */
     @Function
     boolean containsIgnoreCase(List<String> list, String searchStr) {
-        return list.any { it.toLowerCase() == searchStr.toLowerCase() }
+        return list.any { it.toString().equalsIgnoreCase(searchStr) }
     }
 
 }
