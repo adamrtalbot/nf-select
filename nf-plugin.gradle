@@ -5,12 +5,15 @@ nextflowPlugin{
     githubOrganization = publish_repoOwner
 
     // pluginClassName, if not specified, can be calculated by gradle tasks
-    // pluginClassName = 'com.nextflow.plugin.ExamplePlugin'
+    // pluginClassName = 'com.nextflow.plugin.SelectPlugin'
 
     // GenerateIdx scan your classes and generate the idx.
     // In case you want to specify which extensions to use you can use extensionPoints
     extensionPoints = [
-        // i.e 'com.nextflow.plugin.ExampleFunctions'
+        // 'com.nextflow.plugin.SelectPlugin',
+        // 'com.nextflow.plugin.SelectConfiguration',
+        // 'com.nextflow.plugin.SelectTraceObserverFactory',
+        // 'com.nextflow.plugin.SelectFunctions'
     ]
 }
 

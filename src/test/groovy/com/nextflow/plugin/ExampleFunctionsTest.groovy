@@ -3,11 +3,11 @@ package com.nextflow.plugin
 import nextflow.Session
 import spock.lang.Specification
 
-class ExampleFunctionsTest extends Specification {
+class SelectFunctionsTest extends Specification {
 
     def 'should return random string' () {
         given:
-        def example = new ExampleFunctions()
+        def example = new SelectFunctions()
         example.init(new Session([:]))
 
         when:

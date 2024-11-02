@@ -76,7 +76,7 @@ publishing {
             pom {
                 name = "$project.name"
                 description = 'Nextflow Plugin'
-                url = 'https://github.com/edn-es/nf-plugin-template'
+                url = 'https://github.com/adamrtalbot/nf-select'
                 inceptionYear = '2023'
                 licenses {
                     license {
@@ -91,9 +91,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/edn-es/nf-plugin-template.git'
-                    developerConnection = 'scm:git:ssh://github.com/edn-es/nf-plugin-template.git'
-                    url = 'http://github.com/edn-es/nf-plugin-template'
+                    connection = 'scm:git:https://github.com/adamrtalbot/nf-select.git'
+                    developerConnection = 'scm:git:ssh://github.com/adamrtalbot/nf-select.git'
+                    url = 'http://github.com/adamrtalbot/nf-select'
                 }
             }
         }
