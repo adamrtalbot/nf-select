@@ -40,4 +40,23 @@ class SelectFunctions extends PluginExtensionPoint{
         return list.any { it.toString().equalsIgnoreCase(searchStr) }
     }
 
+    /*
+     * Compare two strings for equality, ignoring case sensitivity
+     *
+     * @param str1 First string to compare
+     * @param str2 Second string to compare
+     * @return    true if strings are equal (case insensitive), false otherwise
+     *
+     * Using @Function annotation allows this function to be imported from the pipeline script
+     * 
+     * Example:
+     *    containsIgnoreCase('Hello', 'hello') // returns true
+     *    containsIgnoreCase('World', 'WORLD') // returns true
+     *    containsIgnoreCase('Hello', 'World') // returns false
+     */
+    @Function
+    boolean containsIgnoreCase(String str1, String str2) {
+        return str1.equalsIgnoreCase(str2)
+    }
+
 }

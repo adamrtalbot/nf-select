@@ -82,4 +82,33 @@ class PluginTest extends Dsl2Spec{
         result.val == false
         result.val == Channel.STOP
     }
+
+    def 'should execute containsIgnoreCase with list' () {
+        when:
+        def SCRIPT = '''
+            include {containsIgnoreCase} from 'plugin/nf-select'
+            channel
+                .of( containsIgnoreCase(['Hello', 'World'], 'HELLO') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute containsIgnoreCase with strings' () {
+        when:
+        def SCRIPT = '''
+            include {containsIgnoreCase} from 'plugin/nf-select'
+            channel
+                .of( containsIgnoreCase('Hello', 'HELLO') )
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
 }
