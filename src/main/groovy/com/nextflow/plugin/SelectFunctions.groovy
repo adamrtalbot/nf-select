@@ -22,17 +22,22 @@ class SelectFunctions extends PluginExtensionPoint{
     }
 
     /*
-     *  Nextflow Function example
-     * Generate a random string
+     * Check if a string exists in a list, ignoring case sensitivity
      *
-     * Using @Function annotation we allow this function can be imported from the pipeline script
+     * @param list      List of strings to search through
+     * @param searchStr String to search for
+     * @return         true if searchStr exists in list (case insensitive), false otherwise
+     *
+     * Using @Function annotation allows this function to be imported from the pipeline script
+     * 
+     * Example:
+     *    containsIgnoreCase(['Hello', 'World'], 'hello') // returns true
+     *    containsIgnoreCase(['Hello', 'World'], 'WORLD') // returns true
+     *    containsIgnoreCase(['Hello', 'World'], 'notfound') // returns false
      */
     @Function
-    String randomString(int length=9){
-
-        length = Math.min(length, configuration.maxRandomSizeString)
-
-        new Random().with {(1..length).collect {(('a'..'z')).join(null)[ nextInt((('a'..'z')).join(null).length())]}.join(null)}
+    boolean containsIgnoreCase(List<String> list, String searchStr) {
+        return list.any { it.toLowerCase() == searchStr.toLowerCase() }
     }
 
 }

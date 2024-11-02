@@ -5,16 +5,17 @@ import spock.lang.Specification
 
 class SelectFunctionsTest extends Specification {
 
-    def 'should return random string' () {
+    def 'should check if string exists in list case insensitive' () {
         given:
         def example = new SelectFunctions()
         example.init(new Session([:]))
+        def testList = ['Hello', 'World', 'Test']
 
-        when:
-        def result = example.randomString(9)
-        println result
-
-        then:
-        result.size()==9
+        expect:
+        example.containsIgnoreCase(testList, 'hello') == true
+        example.containsIgnoreCase(testList, 'WORLD') == true
+        example.containsIgnoreCase(testList, 'test') == true
+        example.containsIgnoreCase(testList, 'notfound') == false
+        example.containsIgnoreCase(testList, '') == false
     }
 }
