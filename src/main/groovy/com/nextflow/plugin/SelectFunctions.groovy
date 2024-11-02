@@ -22,17 +22,72 @@ class SelectFunctions extends PluginExtensionPoint{
     }
 
     /*
-     *  Nextflow Function example
-     * Generate a random string
+     * Check if a string exists in a list, ignoring case sensitivity
      *
-     * Using @Function annotation we allow this function can be imported from the pipeline script
+     * @param list      List of strings to search through
+     * @param searchStr String to search for
+     * @return         true if searchStr exists in list (case insensitive), false otherwise
+     *
+     * Using @Function annotation allows this function to be imported from the pipeline script
+     * 
+     * Example:
+     *    containsIgnoreCase(['Hello', 'World'], 'hello') // returns true
+     *    containsIgnoreCase(['Hello', 'World'], 'WORLD') // returns true
+     *    containsIgnoreCase(['Hello', 'World'], 'notfound') // returns false
      */
     @Function
-    String randomString(int length=9){
+    boolean containsIgnoreCase(List<String> list, String searchStr) {
+        return list.any { it.toString().equalsIgnoreCase(searchStr) }
+    }
 
-        length = Math.min(length, configuration.maxRandomSizeString)
-
-        new Random().with {(1..length).collect {(('a'..'z')).join(null)[ nextInt((('a'..'z')).join(null).length())]}.join(null)}
+    /*
+     * Compare two strings for equality, ignoring case sensitivity
+     *
+     * @param str First string to compare
+     * @param searchStr Second string to compare
+     * @return    true if strings are equal (case insensitive), false otherwise
+     *
+     * Using @Function annotation allows this function to be imported from the pipeline script
+     * 
+     * Example:
+     *    containsIgnoreCase('Hello', 'hello') // returns true
+     *    containsIgnoreCase('World', 'WORLD') // returns true
+     *    containsIgnoreCase('Hello', 'World') // returns false
+     */
+    @Function
+    boolean containsIgnoreCase(String str, String searchStr) {
+        return str.equalsIgnoreCase(searchStr)
     }
 
 }
+
+
+/*
+What we are aiming for:
+
+// Check the parameters tools or skip_tools, then compare it against the provided tool
+// Returns true/false based on whether 'tool' is found in 'parameter'
+def checkInParam(parameter, checkValue) {
+    if (!parameter){
+        false
+    } else {
+        def tokenized_parameter = parameter.tokenize(',')
+        switch (checkValue) {
+            // If checkValue is a list check if any appear in tokenized parameter
+            case checkValue instanceof List:
+                checkValue.any{ it.toLowerCase() in parameter.tokenize(',') }
+            // If checkValue is a string check it appears in parameter
+            case checkValue instanceof String:
+                checkValue.toLowerCase() in parameter.tokenize(',')
+            default:
+                false
+        }
+    }
+}
+
+and:
+when          = { 
+    ( params.run ? params.run.split(',').any{ "NF_CANARY:${it.toUpperCase()}".contains(task.process) } : true ) && 
+    (!params.skip.split(',').any{ "NF_CANARY:${it.toUpperCase()}".contains(task.process) } ) 
+}
+*/

@@ -21,3 +21,9 @@ This page contains miscellaneous notes on developing a plugin.
 
 - The CI test came from https://github.com/Midnighter/cookiecutter-nf-plugin which is older but simpler. It's much easier to use because the cookiecutter solves everything for you, but the features from Jorge's template are nice to have.
 - I initially added a test for Java 21 (Temurin) but it raised the error "Unsupported class file major version 65". Since it didn't fix it I decided to give up and just remove it, not sure if it works on Nextflow but that might not matter once we start developing properly.
+
+## Adding a function
+
+[https://github.com/adamrtalbot/nf-select/pull/3](https://github.com/adamrtalbot/nf-select/pull/3)
+
+Now I had the template in place, this was quite easy. It's straightforward Groovy and while not perfect, it was pretty straightforward. I added a slightly pointless method to make my life easier.
