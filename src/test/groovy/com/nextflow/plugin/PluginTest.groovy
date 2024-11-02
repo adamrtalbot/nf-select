@@ -59,7 +59,7 @@ class PluginTest extends Dsl2Spec{
     def 'should execute a function' () {
         when:
         def SCRIPT = '''
-            include {randomString} from 'plugin/nf-plugin-template'
+            include {randomString} from 'plugin/nf-select'
             channel
                 .of( randomString(20) )      
             '''
@@ -73,7 +73,7 @@ class PluginTest extends Dsl2Spec{
     def 'should use a configuration' () {
         when:
         def SCRIPT = '''
-            include {randomString} from 'plugin/nf-plugin-template'
+            include {randomString} from 'plugin/nf-select'
             channel
                 .of( randomString(20) )      
             '''

@@ -6,9 +6,9 @@ import org.pf4j.PluginWrapper
 
 
 @Slf4j
-class ExamplePlugin extends BasePlugin{
+class SelectPlugin extends BasePlugin{
 
-    ExamplePlugin(PluginWrapper wrapper) {
+    SelectPlugin(PluginWrapper wrapper) {
         super(wrapper)
         initPlugin()
     }

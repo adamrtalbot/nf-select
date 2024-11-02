@@ -3,11 +3,11 @@ package com.nextflow.plugin
 import groovy.transform.PackageScope
 
 @PackageScope
-class ExampleConfiguration {
+class SelectConfiguration {
 
     final private int maxSize
 
-    ExampleConfiguration(Map map){
+    SelectConfiguration(Map map){
         def config = map ?: Collections.emptyMap()
         maxSize = (config.maxSize ?: 1000) as int
     }

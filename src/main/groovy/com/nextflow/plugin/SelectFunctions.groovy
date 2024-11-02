@@ -6,10 +6,10 @@ import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.Session
 
 @CompileStatic
-class ExampleFunctions extends PluginExtensionPoint{
+class SelectFunctions extends PluginExtensionPoint{
 
     private Session session
-    private ExampleConfiguration configuration
+    private SelectConfiguration configuration
 
     @Override
     protected void init(Session session) {
@@ -17,8 +17,8 @@ class ExampleFunctions extends PluginExtensionPoint{
         this.configuration = parseConfig(session.config.navigate('example') as Map)
     }
 
-    protected ExampleConfiguration parseConfig(Map map){
-        new ExampleConfiguration(map)
+    protected SelectConfiguration parseConfig(Map map){
+        new SelectConfiguration(map)
     }
 
     /*
