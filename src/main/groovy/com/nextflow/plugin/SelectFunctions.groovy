@@ -85,4 +85,9 @@ def checkInParam(parameter, checkValue) {
     }
 }
 
+and:
+when          = { 
+    ( params.run ? params.run.split(',').any{ "NF_CANARY:${it.toUpperCase()}".contains(task.process) } : true ) && 
+    (!params.skip.split(',').any{ "NF_CANARY:${it.toUpperCase()}".contains(task.process) } ) 
+}
 */
