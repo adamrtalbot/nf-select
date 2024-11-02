@@ -110,5 +110,205 @@ class PluginTest extends Dsl2Spec{
         result.val == true
         result.val == Channel.STOP
     }
+    def 'should execute checkInObject with string input' () {
+        when:
+        def SCRIPT = '''
+            include {checkInObject} from 'plugin/nf-select'
+            channel
+                .of( checkInObject('foo,bar,baz', 'BAR') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
 
+    def 'should execute checkInObject with list input' () {
+        when:
+        def SCRIPT = '''
+            include {checkInObject} from 'plugin/nf-select'
+            channel
+                .of( checkInObject('foo,bar,baz', ['BAR', 'BAZ']) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInObject with custom separator' () {
+        when:
+        def SCRIPT = '''
+            include {checkInObject} from 'plugin/nf-select'
+            channel
+                .of( checkInObject('foo|bar|baz', 'BAR', false, '|') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInObject with default choice' () {
+        when:
+        def SCRIPT = '''
+            include {checkInObject} from 'plugin/nf-select'
+            channel
+                .of( checkInObject('', 'anything', true) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInParam with string input' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            channel
+                .of( checkInParam('foo,bar,baz', 'BAR') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInParam with list input' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            channel
+                .of( checkInParam('foo,bar,baz', ['BAR', 'BAZ']) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInParam with custom separator' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            channel
+                .of( checkInParam('foo|bar|baz', 'BAR', false, '|') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInParam with default choice' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            channel
+                .of( checkInParam('', 'anything', true) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+    def 'should select from parameter value' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = "star"
+            channel
+                .of( checkInParam(params.tools, 'star') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should return false from parameter value' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = "star"
+            channel
+                .of( checkInParam(params.tools, 'notstar') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == false
+        result.val == Channel.STOP
+    }
+
+    def 'should ignore empty parameter value' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = ""
+            channel
+                .of( checkInParam(params.tools, 'star') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == false
+        result.val == Channel.STOP
+    }
+
+    def 'can be inverted' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = ""
+            channel
+                .of( !checkInParam(params.tools, 'star') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'null params are ignored' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = null
+            channel
+                .of( checkInParam(params.tools, 'star', true) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'combine two params' () {
+        when:
+        def SCRIPT = '''
+            include {checkInParam} from 'plugin/nf-select'
+            params.tools = "foo"
+            params.skip_tools = "bar"
+            channel
+                .of( checkInParam(params.tools, 'foo') && checkInParam(params.skip_tools, 'bar') )     
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
 }
