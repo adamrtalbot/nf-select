@@ -43,3 +43,9 @@ jobs:
         run: ./gradlew jsonPlugin
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nf-select-meta-json
+          path: build/plugin/nf-select-*-meta.json
