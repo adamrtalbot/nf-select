@@ -1,109 +1,155 @@
-= nf-plugin-template: a Nextflow Plugin Template
-Jorge Aguilera <jagedn@gmail.com>
+= nf-select: A Nextflow plugin for selecting files
+Adam Talbot
 v0.0.1
 :toc: left
 
-nf-plugin-template is a gradle template to create Nextflow plugins
+nf-select is a Nextflow plugin that provides functionality for pulling strings out of lists. It's main use is to select tools to enable or disable particular tools but it could do anything else. For example use cases, you can see:
 
-You can grab the template from:
+- nf-canary which enables or disables tests based on the parameter `run` or `skip`
+- Sarek which enables or disables tools based on `--tools` and `--skip_tools`.
 
-https://github.com/jagedn/nf-plugin-template/
+This plugin was made as a learning exercise, but it could be useful for others. If so I will contribute it to nextflow-io/plugins.
 
-== Features
+== Installation
 
-- minimal changes
-- simple structure, oriented to a single plugin
-- gradle 8.4
-- custom Gradle tasks included
-- ready to publish GitHub releases
-- asciidoctor documentation + GitHub Pages
+Currently the plugin is in dev mode, so the easiest method is to clone the repo and run `./gradlew unzipPlugin` in the root of the project. This will build and copy the plugin to the Nextflow plugins directory. You will need to explicitly specify the correct version of the plugin (currently `v0.0.1dev`) in your `nextflow.config` or command line (see usage). For further information see the development guidance.
 
-== Changes
+Alternatively, you can set the `NXF_PLUGINS_TEST_REPOSITORY` environment variable to point to the JSON file created as part of the build process.
 
-This is a fork of the original jagedn/nf-plugin-template repository. In case you're using
-original repo this new repo contains:
+== Usage
 
-- use gradle.properties to configure required variables
-- publish releases using JReleaser
+Currently, the plugin contains a few small functions:
 
-
-== Steps
-
-- Create a new Github project using this template
-- Clone in a directory with the name of your new plugin, i.e.
-`nf-my-awesome-plugin`
-
-- configure all details about your project:
-
-.gradle.properties
+- `checkInParam`: A method for checking if a single string is within a list of strings. e.g.:
+[source,groovy]
 ----
-publish_description = An unofficial template to build Nextflow Plugins
-publish_url = https://github.com/adamrtalbot/nf-select
-publish_year = 2023
-publish_developer = jagedn
-publish_developerName = Jorge Aguilera
-publish_git = scm:git:https://github.com/adamrtalbot/nf-select.git
-publish_repoOwner = edn-es
+params.tools = 'foo,bar,baz'
+checkInParam(params.tools, 'foo') // true
+checkInParam(params.tools, 'qux') // false
+
+params.skip_tools = 'qux'
+checkInParam(params.skip_tools, 'qux') // true
+---
+
+It also contains a `defaultChoice` parameter for setting a value if the checkValue is not set. It must be boolean and by default is `false`:
+
+[source,groovy]
+----
+checkInParam(params.tools, null, defaultChoice = true) // true
+---
+
+Finally it includes a `separator` parameter for setting the separator for the list of strings. By default it is a comma:
+
+[source,groovy]
+----
+params.tools = "foo|bar|baz"
+checkInParam(params.tools, "foo", defaultChoice = false, separator = "|")
 ----
 
-- add your dependencies. For example, add apache poi libs from mavenCentral
+In addition to `checkInParam` there is an alias `checkInObject` which just is a more accurate name for the same thing.
 
-.nf-plugin.gradle
+Furthermore, nf-select contains an additional function:
+
+- `containsIgnoreCase`: A method for checking if a single string is within an array or a single string. e.g.:
+
+[source,groovy]
 ----
-dependencies {
-    // add your dependencies, for example:
-    implementation 'org.apache.poi:poi:5.2.4'
-    implementation 'org.apache.poi:poi-ooxml:5.2.4'
+containsIgnoreCase('foo,bar,baz', 'foo') // true
+containsIgnoreCase('foo'        , 'foo') // true
+containsIgnoreCase('bar,baz'    , 'foo') // true
+----
+
+== Development
+
+=== Setup Development Environment
+
+1. Clone the repository:
+[source,bash]
+----
+git clone https://github.com/adamrtalbot/nf-select.git
+cd nf-select
+----
+
+=== Building and Testing
+
+First, check it builds:
+
+* Build the plugin:
+[source,bash]
+----
+make build
+----
+
+After that, develop as normal. Here is a brief description of the useful files:
+
+- [SelectFunctions.groovy](src/main/groovy/com/nextflow/plugin/SelectFunctions.groovy): The main functions of the plugin. This is probably the file you want to modify.
+- [SelectPlugin.groovy](src/main/groovy/com/nextflow/plugin/SelectPlugin.groovy): The main plugin initialisation file.
+- [ExampleFunctionsTest.groovy](./src/test/groovy/com/nextflow/plugin/ExampleFunctionsTest.groovy): Tests for the function. Think of these as your "Groovy" unit tests.
+- [PluginTest.groovy](./src/test/groovy/com/nextflow/plugin/PluginTest.groovy): Plugin tests which write temporary Nextflow and run them. Jorge has made a pretty cool mock of Nextflow which means you don't need 1 million Nextflow scripts and it's very ligthweight. This is the "Nextflow" unit tests.
+
+
+* Run tests:
+[source,bash]
+----
+make test
+----
+
+* Install locally for testing:
+[source,bash]
+----
+make install
+----
+
+=== Creating a Release
+
+Adapted from [https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md](https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md)
+
+- Update the `gradle.properties` file
+- On Github actions, run the release pipeline and set the correct version
+- Double check that the details are right
+
+```json
+{
+    "version": "0.0.1dev",
+    "date": "2024-11-03T19:26:25.767304Z",
+    "url": "https://github.com/adamrtalbot/nf-select/releases/download/0.0.1dev/nf-select-0.0.1dev.zip",
+    "requires": ">=22.10.0",
+    "sha512sum": "b2d269eedbc1722089e8585cde2db998cb52e8981ae5a4c5b45a596a2f4565e5ca65a38157ae7d765c585274bbb13dd652b31e5f3769221c06f286131b333056"
 }
-----
+```
 
-- rename `src/main/groovy/com/nextflow/plugin` directory and `ExamplePlugin.groovy` file with the package and name of your plugin
+- Grab the JSON and add it to the [Nextflow Plugins Registry](https://github.com/nextflow-io/plugins/) or your private fork, my fork of the registry is here https://github.com/adamrtalbot/plugin
 
-- rename ExamplePlugin with a better name (for example `MyAwesomePlugin`)
+To test it out, on another system without the plugin installed (but this repo cloned), run this
 
-- delete/rename/update the `SelectFunctions.groovy` with your extension
+```bash
+VERSION=$(grep 'version' gradle.properties | cut -d'=' -f2) NXF_PLUGINS_TEST_REPOSITORY=https://raw.githubusercontent.com/adamrtalbot/plugins/refs/heads/main/plugins.json 
+nextflow run src/test/nextflow/main.nf -c <(echo "plugins { id 'nf-select@${VERSION}' }")
+```
 
-You *don't* need to create the extensions points file (`src/main/resources/META-INF/extensions.idx`)
-as `registerIdx` task will scan your sources and build it
+## Extras
 
-*and this is all*, you can run for example `./gradlew jsonPlugin` to generate Nextflow's artifacts
+If something goes wrong, try this and start again
 
-== Configuration
+```bash
+./gradlew clean
+./gradlew build
+rm -rf .gradle
+```
 
-This template includes an `SelectConfiguration` to show you how to make your plugin configurable
+== Contributing
 
-== Test
+This is pretty janky, so I welcome any help.
 
-You can/need to create as many tests you consider. This template includes
-a full example running a pipeline and checking the result
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-== Tasks
+== License
 
-INFO:: You can find new gradle tasks in `nextflow` group
+This project is licensed under the MIT License.
 
-- `generateIdx`, scan sources and generate the `extensions.idx` resource
-- `zipPlugin` , compile and package your plugin in a zip file ready to be used by Nextflow
-- `unzipPlugin` , extract the zip file into your $HOME/.nextflow/plugins so you can use it in pipelines
-- `jsonPlugin`, create the json spec required by nextflow to publish a plugin
+== Support
 
-A typical scenario can be, once you've created/implemented some logic in your plugin, you've created some test
-but want to see in action in a pipeline. You can run the `unzipPlugin` task, and it will install the plugin into
-your $HOME/.nextflow/plugin directory
-
-Or you can run the pipeline using the NXF_PLUGINS_TEST_REPOSITORY env with your `build/plugins` directory
-
-
-== Documentation
-
-This template include `asciidoctor` gradle plugin to generate documentation.
-
-You can write your documentation at `src/docs/asciidoc` and run `./gradlew asciidoctor` to build it
-at `build/doc` directory.
-
-Remember to prepare your GitHub repository with GH Pages (go to Settings, Pages and select `GitHub Actions` as source) and your documentation will be published automagically
-
-== Release
-
-This template uses `JReleaser` to publish releases in GitHub (publish in MavenCentral soon). Also you can use
-the `release` GitHub action to run it (it only requires you specify which version are you deploying)
-
+* Create an issue: https://github.com/adamrtalbot/nf-select/issues
+* Documentation: https://adamrtalbot.github.io/nf-select
