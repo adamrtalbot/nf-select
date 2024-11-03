@@ -1,10 +1,10 @@
 include { checkInParam } from 'plugin/nf-select'
 
-params.tools = "strelka"
+params.tools = "strelka,star"
 params.skip_tools = "manta"
 
 workflow {
-    use_strelka    = checkInParam(params.tools, "strelka")
+    use_strelka    = checkInParam(params.tools, null, false, "|")
     dont_use_manta = checkInParam(params.skip_tools, "manta")
     use_both = checkInParam(params.tools, "strelka") && checkInParam(params.skip_tools, "manta")
 
