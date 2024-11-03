@@ -9,16 +9,10 @@ import nextflow.Session
 class SelectFunctions extends PluginExtensionPoint{
 
     private Session session
-    private SelectConfiguration configuration
 
     @Override
     protected void init(Session session) {
         this.session = session
-        this.configuration = parseConfig(session.config.navigate('example') as Map)
-    }
-
-    protected SelectConfiguration parseConfig(Map map){
-        new SelectConfiguration(map)
     }
 
     /*
