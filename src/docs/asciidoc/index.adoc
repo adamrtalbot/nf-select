@@ -29,14 +29,14 @@ checkInParam(params.tools, 'qux') // false
 
 params.skip_tools = 'qux'
 checkInParam(params.skip_tools, 'qux') // true
----
+----
 
 It also contains a `defaultChoice` parameter for setting a value if the checkValue is not set. It must be boolean and by default is `false`:
 
 [source,groovy]
 ----
 checkInParam(params.tools, null, defaultChoice = true) // true
----
+----
 
 Finally it includes a `separator` parameter for setting the separator for the list of strings. By default it is a comma:
 
