@@ -27,3 +27,38 @@ This page contains miscellaneous notes on developing a plugin.
 [https://github.com/adamrtalbot/nf-select/pull/3](https://github.com/adamrtalbot/nf-select/pull/3)
 
 Now I had the template in place, this was quite easy. It's straightforward Groovy and while not perfect, it was pretty straightforward. I added a slightly pointless method to make my life easier.
+
+All pretty straightforward...
+
+## Testing
+
+The two main test paths for a function are:
+
+- [ExampleFunctionsTest.groovy](./src/test/groovy/com/nextflow/plugin/ExampleFunctionsTest.groovy): Tests for the function. Think of these as your "Groovy" unit tests.
+- [PluginTest.groovy](./src/test/groovy/com/nextflow/plugin/PluginTest.groovy): Plugin tests which write temporary Nextflow and run them. Jorge has made a pretty cool mock of Nextflow which means you don't need 1 million Nextflow scripts and it's very ligthweight. This is the "Nextflow" unit tests.
+
+Writing these wasn't too bad with the help of Claude. Thanks Claude.
+
+## Installing and using locally
+
+I found installing a bit confusing because Jorge invented a number of convenience Gradle tasks, which aren't clear. The key parts are this:
+
+- [generateIdx](buildSrc/src/main/groovy/nextflow/plugins/generateIdx.groovy): scan sources and generate the extensions.idx resource, dunno what this does.
+- [zipPlugin](buildSrc/src/main/groovy/nextflow/plugins/ZipPluginTask.groovy): compile and package your plugin in a zip file located at ready to be used by Nextflow which will be located at build/plugin/${pluginName}-${version}.zip
+- [unzipPlugin](buildSrc/src/main/groovy/nextflow/plugins/UnzipPluginTask.groovy): extract the zip file created by zipPlugin into your $HOME/.nextflow/plugins so you can use it directly locally in your pipeline. This replaces the [`make install` that Ben uses in nf-boost](https://github.com/bentsherman/nf-boost/blob/c734f7490abcf81e136942443d80bd7f38d45a21/Makefile#L46-L49)
+- [jsonPlugin](buildSrc/src/main/groovy/nextflow/plugins/jsonPluginTask.groovy) create the json spec required by nextflow to publish a plugin. It will be located at ./build/plugin/${pluginName}-${version}-meta.json and which can be added to the [Nextflow plugins JSON](https://github.com/nextflow-io/plugins/blob/main/plugins.json).
+- clean: Clearup old resources
+
+To make life easier I made a simple Makefile which runs these tasks for you. It's very similar to the ones in nf-hello.
+
+- `make clean`: Clean task to remove build artifacts
+- `make build`: Creates the plugin zip file
+- `make test`: Builds the plugin zip and runs all tests
+- `make install`: Installs the plugin locally by:
+  - Removes any existing plugin version from ~/.nextflow/plugins
+  - Extracts the plugin using Gradle unzipPlugin task
+  - Tests the plugin by running a sample Nextflow script with the plugin enabled
+
+## Docs
+
+The template comes with a build the docs style page in Java. Not sure I like it but it's pre-built. You have to enable docs from Github Actions in your Github repo settings. I would prefer to switch this to markdown if possible.
