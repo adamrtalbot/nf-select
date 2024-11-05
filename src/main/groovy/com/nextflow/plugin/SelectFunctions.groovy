@@ -57,8 +57,8 @@ class SelectFunctions extends PluginExtensionPoint{
      * Check if pattern exists in select list but not in antiSelect list
      *
      * @param pattern       Value or List to check (can be String or List)
-     * @param select        Comma-separated string of allowed values
-     * @param antiSelect    Comma-separated string of excluded values
+     * @param select        Comma-separated string of allowed values (empty by default)
+     * @param antiSelect    Comma-separated string of excluded values (empty by default) 
      * @param defaultChoice If true, return true when pattern is null (default: false)
      * @param separator     The separator used in the select/antiSelect strings (default: comma)
      * @return              true if pattern matches select criteria and not antiSelect, false otherwise
@@ -66,13 +66,14 @@ class SelectFunctions extends PluginExtensionPoint{
      * Using @Function annotation allows this function to be imported from the pipeline script
      * 
      * Example:
-     *    checkInObject(pattern: 'bar', select: 'foo,bar,baz')                 // returns true
-     *    checkInObject(pattern: ['bar','foo'], select: 'foo,bar,baz')         // returns true
-     *    checkInObject(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')  // returns false
-     *    checkInObject(pattern: 'baz', select: 'foo,bar')                     // returns false
-     *    checkInObject(pattern: null, defaultChoice: true)                    // returns true
-     *    checkInObject(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // returns true
-     *    checkInObject(pattern: 'bar', antiSelect: 'bar,baz')                 // returns false
+     *    select(pattern: 'bar', select: 'foo,bar,baz')                 // returns true
+     *    select(pattern: ['bar','foo'], select: 'foo,bar,baz')        // returns true
+     *    select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar') // returns false
+     *    select(pattern: 'qux', select: 'foo,bar,baz')                // returns false
+     *    select(pattern: null, defaultChoice: true)                    // returns true
+     *    select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // returns true
+     *    select(pattern: 'bar', antiSelect: 'bar,baz')                // returns false
+     */
      */    @Function
     boolean select(Map options = null) {
         def pattern           = options?.pattern

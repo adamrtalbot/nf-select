@@ -1,7 +1,4 @@
 = nf-select: A Nextflow plugin for selecting files
-Adam Talbot
-v0.0.1
-:toc: left
 
 nf-select is a Nextflow plugin that provides functionality for pulling strings out of lists. It's main use is to select tools to enable or disable particular tools but it could do anything else. For example use cases, you can see:
 
@@ -49,8 +46,6 @@ The function takes a map with the following parameters:
 - `separator`: The separator used in the select/antiSelect strings (default: comma)
 
 NOTE: If both `select` and `antiSelect` are empty, the function will return true for any non-null pattern.
-
-In addition to `select` there is an alias `checkInObject` which provides the same functionality.
 
 Furthermore, nf-select contains additional utility functions:
 

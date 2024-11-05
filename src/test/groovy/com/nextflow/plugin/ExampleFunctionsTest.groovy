@@ -32,40 +32,40 @@ class SelectFunctionsTest extends Specification {
         select.containsIgnoreCase('  test  ', 'TEST') == true
     }
 
-    def 'should check parameter string with various inputs using checkInObject' () {
+    def 'should check parameter string with various inputs using select' () {
         given:
         def select = new SelectFunctions()
         select.init(new Session([:]))
 
         expect:
         // Basic string matching with select
-        select.checkInObject(pattern: 'bar', select: 'foo,bar,baz') == true
-        select.checkInObject(pattern: 'BAR', select: 'foo,bar,baz') == true
-        select.checkInObject(pattern: 'missing', select: 'foo,bar,baz') == false
+        select.select(pattern: 'bar', select: 'foo,bar,baz') == true
+        select.select(pattern: 'BAR', select: 'foo,bar,baz') == true
+        select.select(pattern: 'missing', select: 'foo,bar,baz') == false
         
         // List pattern matching
-        select.checkInObject(pattern: ['bar', 'baz'], select: 'foo,bar,baz') == true
-        select.checkInObject(pattern: ['missing', 'nothere'], select: 'foo,bar,baz') == false
+        select.select(pattern: ['bar', 'baz'], select: 'foo,bar,baz') == true
+        select.select(pattern: ['missing', 'nothere'], select: 'foo,bar,baz') == false
         
         // Anti-select matching
-        select.checkInObject(pattern: 'bar', antiSelect: 'bar,baz') == false
-        select.checkInObject(pattern: 'foo', antiSelect: 'bar,baz') == true
+        select.select(pattern: 'bar', antiSelect: 'bar,baz') == false
+        select.select(pattern: 'foo', antiSelect: 'bar,baz') == true
         
         // Combined select and anti-select
-        select.checkInObject(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'baz') == true
-        select.checkInObject(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'bar') == false
+        select.select(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'baz') == true
+        select.select(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'bar') == false
         
         // Default choice behavior
-        select.checkInObject(pattern: null, defaultChoice: true) == true
-        select.checkInObject(pattern: null, defaultChoice: false) == false
+        select.select(pattern: null, defaultChoice: true) == true
+        select.select(pattern: null, defaultChoice: false) == false
         
         // Custom separator
-        select.checkInObject(pattern: 'bar', select: 'foo;bar;baz', separator: ';') == true
-        select.checkInObject(pattern: 'bar', select: 'foo|bar|baz', separator: '|') == true
+        select.select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') == true
+        select.select(pattern: 'bar', select: 'foo|bar|baz', separator: '|') == true
         
         // Whitespace handling
-        select.checkInObject(pattern: 'bar', select: 'foo, bar, baz') == true
-        select.checkInObject(pattern: 'baz', select: 'foo,   bar,baz  ') == true
+        select.select(pattern: 'bar', select: 'foo, bar, baz') == true
+        select.select(pattern: 'baz', select: 'foo,   bar,baz  ') == true
     }
 
     def 'should handle edge cases in parameter checking' () {
@@ -75,22 +75,22 @@ class SelectFunctionsTest extends Specification {
 
         expect:
         // Empty inputs
-        select.checkInObject(pattern: '', select: '', defaultChoice: false) == false
-        select.checkInObject(pattern: '', select: '', defaultChoice: true) == true
+        select.select(pattern: '', select: '', defaultChoice: false) == false
+        select.select(pattern: '', select: '', defaultChoice: true) == true
         
         // Empty select/antiSelect
-        select.checkInObject(pattern: 'foo') == true
-        select.checkInObject(pattern: 'foo', select: '', antiSelect: '') == true
+        select.select(pattern: 'foo') == true
+        select.select(pattern: 'foo', select: '', antiSelect: '') == true
         
         // Non-string/non-list input
-        select.checkInObject(pattern: 123, select: 'foo,bar,baz') == false
+        select.select(pattern: 123, select: 'foo,bar,baz') == false
         
         // Mixed case with whitespace
-        select.checkInObject(pattern: 'foo', select: 'FoO, BAR,   baZ') == true
-        select.checkInObject(pattern: ['FOO', 'baz'], select: 'FoO, BAR,   baZ') == true
+        select.select(pattern: 'foo', select: 'FoO, BAR,   baZ') == true
+        select.select(pattern: ['FOO', 'baz'], select: 'FoO, BAR,   baZ') == true
         
         // Complex combinations
-        select.checkInObject(pattern: ['foo', 'bar'], select: 'foo,bar', antiSelect: 'baz') == true
-        select.checkInObject(pattern: ['foo', 'baz'], select: 'foo,bar', antiSelect: 'baz') == false
+        select.select(pattern: ['foo', 'bar'], select: 'foo,bar', antiSelect: 'baz') == true
+        select.select(pattern: ['foo', 'baz'], select: 'foo,bar', antiSelect: 'baz') == false
     }
 }
