@@ -74,7 +74,7 @@ class SelectFunctions extends PluginExtensionPoint{
      *    checkInObject(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // returns true
      *    checkInObject(pattern: 'bar', antiSelect: 'bar,baz')                 // returns false
      */    @Function
-    boolean checkInObject(Map options = null) {
+    boolean select(Map options = null) {
         def pattern           = options?.pattern
         String select         = options?.select        ?: ''
         String antiSelect     = options?.antiSelect    ?: ''
@@ -97,10 +97,6 @@ class SelectFunctions extends PluginExtensionPoint{
         }
 
         return defaultChoice
-    }
-    @Function
-    boolean checkInParam(Map options = null) {
-        return checkInObject(options)
     }
 
 }

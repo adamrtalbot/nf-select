@@ -20,24 +20,24 @@ Alternatively, you can set the `NXF_PLUGINS_TEST_REPOSITORY` environment variabl
 
 Currently, the plugin contains a few small functions:
 
-- `checkInParam`: A method for checking if a pattern exists in a select list but not in an antiSelect list. e.g.:
+- `select`: A method for checking if a pattern exists in a select list but not in an antiSelect list. e.g.:
 
 [source,groovy]
 ----
 // Basic usage with select list
-checkInParam(pattern: 'foo', select: 'foo,bar,baz')                 // true
-checkInParam(pattern: ['bar','foo'], select: 'foo,bar,baz')        // true
-checkInParam(pattern: 'qux', select: 'foo,bar,baz')                // false
+select(pattern: 'foo', select: 'foo,bar,baz')                 // true
+select(pattern: ['bar','foo'], select: 'foo,bar,baz')        // true
+select(pattern: 'qux', select: 'foo,bar,baz')                // false
 
 // Using antiSelect list
-checkInParam(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar') // false
-checkInParam(pattern: 'bar', antiSelect: 'bar,baz')                // false
+select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar') // false
+select(pattern: 'bar', antiSelect: 'bar,baz')                // false
 
 // Default choice when pattern is null
-checkInParam(pattern: null, defaultChoice: true)                    // true
+select(pattern: null, defaultChoice: true)                    // true
 
 // Custom separator
-checkInParam(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // true
+select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // true
 ----
 
 The function takes a map with the following parameters:
@@ -50,7 +50,7 @@ The function takes a map with the following parameters:
 
 NOTE: If both `select` and `antiSelect` are empty, the function will return true for any non-null pattern.
 
-In addition to `checkInParam` there is an alias `checkInObject` which provides the same functionality.
+In addition to `select` there is an alias `checkInObject` which provides the same functionality.
 
 Furthermore, nf-select contains additional utility functions:
 
