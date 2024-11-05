@@ -110,12 +110,12 @@ class PluginTest extends Dsl2Spec{
         result.val == true
         result.val == Channel.STOP
     }
-    def 'should execute checkInObject with string input' () {
+    def 'should execute select with string input' () {
         when:
         def SCRIPT = '''
-            include {checkInObject} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo,bar,baz', 'BAR') )      
+                .of( select(pattern: 'BAR', select: 'foo,bar,baz') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -124,12 +124,12 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInObject with list input' () {
+    def 'should execute select with list input' () {
         when:
         def SCRIPT = '''
-            include {checkInObject} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo,bar,baz', ['BAR', 'BAZ']) )      
+                .of( select(pattern: ['BAR', 'BAZ'], select: 'foo,bar,baz') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -138,12 +138,12 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInObject with custom separator' () {
+    def 'should execute select with antiSelect' () {
         when:
         def SCRIPT = '''
-            include {checkInObject} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo|bar|baz', 'BAR', false, '|') )      
+                .of( select(pattern: 'BAR', select: 'foo,bar,baz', antiSelect: 'foo') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -152,12 +152,12 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInObject with default choice' () {
+    def 'should execute select with custom separator' () {
         when:
         def SCRIPT = '''
-            include {checkInObject} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInObject('', 'anything', true) )      
+                .of( select(pattern: 'BAR', select: 'foo|bar|baz', separator: '|') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -166,12 +166,25 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInParam with string input' () {
+    def 'should execute select with default choice' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo,bar,baz', 'BAR') )      
+                .of( select(pattern: null, defaultChoice: true) )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+    def 'should execute select with string input' () {
+        when:
+        def SCRIPT = '''
+            include {select} from 'plugin/nf-select'
+            channel
+                .of( select(pattern: 'BAR', select: 'foo,bar,baz') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -180,12 +193,12 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInParam with list input' () {
+    def 'should execute select with list input' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo,bar,baz', ['BAR', 'BAZ']) )      
+                .of( select(pattern: ['BAR', 'BAZ'], select: 'foo,bar,baz') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -194,12 +207,12 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInParam with custom separator' () {
+    def 'should execute select with antiSelect' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo|bar|baz', 'BAR', false, '|') )      
+                .of( select(pattern: 'BAR', select: 'foo,bar,baz', antiSelect: 'foo') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -208,12 +221,26 @@ class PluginTest extends Dsl2Spec{
         result.val == Channel.STOP
     }
 
-    def 'should execute checkInParam with default choice' () {
+    def 'should execute select with custom separator' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             channel
-                .of( checkInParam('', 'anything', true) )      
+                .of( select(pattern: 'BAR', select: 'foo|bar|baz', separator: '|') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute select with default choice' () {
+        when:
+        def SCRIPT = '''
+            include {select} from 'plugin/nf-select'
+            channel
+                .of( select(pattern: null, defaultChoice: true) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -224,10 +251,10 @@ class PluginTest extends Dsl2Spec{
     def 'should select from parameter value' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = "star"
             channel
-                .of( checkInParam(params.tools, 'star') )      
+                .of( select(pattern: 'star', select: params.tools, defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -239,10 +266,10 @@ class PluginTest extends Dsl2Spec{
     def 'should return false from parameter value' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = "star"
             channel
-                .of( checkInParam(params.tools, 'notstar') )      
+                .of( select(pattern: 'notstar', select: params.tools, defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -254,10 +281,10 @@ class PluginTest extends Dsl2Spec{
     def 'should ignore empty parameter value' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = ""
             channel
-                .of( checkInParam(params.tools, 'star') )      
+                .of( select(pattern: params.tools, select: 'star', defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -269,10 +296,10 @@ class PluginTest extends Dsl2Spec{
     def 'can be inverted' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = ""
             channel
-                .of( !checkInParam(params.tools, 'star') )      
+                .of( !select(pattern: params.tools, select: 'star', defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -284,10 +311,10 @@ class PluginTest extends Dsl2Spec{
     def 'null params are ignored' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = null
             channel
-                .of( checkInParam(params.tools, 'star', true) )      
+                .of( select(pattern: params.tools, select: 'star', defaultChoice: true) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -299,11 +326,12 @@ class PluginTest extends Dsl2Spec{
     def 'combine two params' () {
         when:
         def SCRIPT = '''
-            include {checkInParam} from 'plugin/nf-select'
+            include {select} from 'plugin/nf-select'
             params.tools = "foo"
             params.skip_tools = "bar"
             channel
-                .of( checkInParam(params.tools, 'foo') && checkInParam(params.skip_tools, 'bar') )     
+                .of( select(pattern: 'foo', select: params.tools, defaultChoice: false) && 
+                select(pattern: 'bar', select: params.skip_tools, defaultChoice: false) )     
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()

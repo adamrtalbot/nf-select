@@ -18,77 +18,54 @@ class SelectFunctionsTest extends Specification {
         select.containsIgnoreCase(testList, 'notfound') == false
         select.containsIgnoreCase(testList, '') == false
     }
-    
-    def 'should check if string exists in list case insensitive' () {
+
+    def 'should check if strings are equal case insensitive' () {
         given:
         def select = new SelectFunctions()
         select.init(new Session([:]))
-        def testList = ['Hello', 'World', 'Test']
 
         expect:
-        select.containsIgnoreCase(testList, 'hello') == true
-        select.containsIgnoreCase(testList, 'WORLD') == true
-        select.containsIgnoreCase(testList, 'test') == true
-        select.containsIgnoreCase(testList, 'notfound') == false
-        select.containsIgnoreCase(testList, '') == false
+        select.containsIgnoreCase('Hello', 'hello') == true
+        select.containsIgnoreCase('World', 'WORLD') == true
+        select.containsIgnoreCase('Hello', 'World') == false
+        select.containsIgnoreCase('', '') == true
+        select.containsIgnoreCase('  test  ', 'TEST') == true
     }
 
-    def 'should check parameter string with various inputs using checkInObject' () {
+    def 'should check parameter string with various inputs using select' () {
         given:
         def select = new SelectFunctions()
         select.init(new Session([:]))
 
         expect:
-        // Basic string matching
-        select.checkInObject('foo,bar,baz', 'bar') == true
-        select.checkInObject('foo,bar,baz', 'BAR') == true
-        select.checkInObject('foo,bar,baz', 'missing') == false
+        // Basic string matching with select
+        select.select(pattern: 'bar', select: 'foo,bar,baz') == true
+        select.select(pattern: 'BAR', select: 'foo,bar,baz') == true
+        select.select(pattern: 'missing', select: 'foo,bar,baz') == false
         
-        // List matching
-        select.checkInObject('foo,bar,baz', ['bar', 'baz']) == true
-        select.checkInObject('foo,bar,baz', ['missing', 'nothere']) == false
+        // List pattern matching
+        select.select(pattern: ['bar', 'baz'], select: 'foo,bar,baz') == true
+        select.select(pattern: ['missing', 'nothere'], select: 'foo,bar,baz') == false
         
-        // Default choice behavior
-        select.checkInObject('', 'anything', true) == true
-        select.checkInObject(null, 'anything', true) == true
-        select.checkInObject('foo,bar,baz', 'missing', true) == false
+        // Anti-select matching
+        select.select(pattern: 'bar', antiSelect: 'bar,baz') == false
+        select.select(pattern: 'foo', antiSelect: 'bar,baz') == true
         
-        // Custom separator
-        select.checkInObject('foo;bar;baz', 'bar', false, ';') == true
-        select.checkInObject('foo|bar|baz', 'bar', false, '|') == true
-        
-        // Whitespace handling
-        select.checkInObject('foo, bar, baz', 'bar') == true
-        select.checkInObject('foo,   bar,baz  ', 'baz') == true
-    }
-
-    def 'should check parameter string with various inputs using checkInParam' () {
-        given:
-        def select = new SelectFunctions()
-        select.init(new Session([:]))
-
-        expect:
-        // Basic string matching
-        select.checkInParam('foo,bar,baz', 'bar') == true
-        select.checkInParam('foo,bar,baz', 'BAR') == true
-        select.checkInParam('foo,bar,baz', 'missing') == false
-        
-        // List matching
-        select.checkInParam('foo,bar,baz', ['bar', 'baz']) == true
-        select.checkInParam('foo,bar,baz', ['missing', 'nothere']) == false
+        // Combined select and anti-select
+        select.select(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'baz') == true
+        select.select(pattern: 'bar', select: 'foo,bar,baz', antiSelect: 'bar') == false
         
         // Default choice behavior
-        select.checkInParam('', 'anything', true) == true
-        select.checkInParam(null, 'anything', true) == true
-        select.checkInParam('foo,bar,baz', 'missing', true) == false
+        select.select(pattern: null, defaultChoice: true) == true
+        select.select(pattern: null, defaultChoice: false) == false
         
         // Custom separator
-        select.checkInParam('foo;bar;baz', 'bar', false, ';') == true
-        select.checkInParam('foo|bar|baz', 'bar', false, '|') == true
+        select.select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') == true
+        select.select(pattern: 'bar', select: 'foo|bar|baz', separator: '|') == true
         
         // Whitespace handling
-        select.checkInParam('foo, bar, baz', 'bar') == true
-        select.checkInParam('foo,   bar,baz  ', 'baz') == true
+        select.select(pattern: 'bar', select: 'foo, bar, baz') == true
+        select.select(pattern: 'baz', select: 'foo,   bar,baz  ') == true
     }
 
     def 'should handle edge cases in parameter checking' () {
@@ -98,21 +75,22 @@ class SelectFunctionsTest extends Specification {
 
         expect:
         // Empty inputs
-        select.checkInObject('', '') == false
-        select.checkInObject('', '', true) == true
-        select.checkInParam('', '') == false
-        select.checkInParam('', '', true) == true
+        select.select(pattern: '', select: '', defaultChoice: false) == false
+        select.select(pattern: '', select: '', defaultChoice: true) == true
+        
+        // Empty select/antiSelect
+        select.select(pattern: 'foo') == true
+        select.select(pattern: 'foo', select: '', antiSelect: '') == true
         
         // Non-string/non-list input
-        select.checkInObject('foo,bar,baz', 123) == false
-        select.checkInObject('foo,bar,baz', 123, true) == true
-        select.checkInParam('foo,bar,baz', 123) == false
-        select.checkInParam('foo,bar,baz', 123, true) == true
+        select.select(pattern: 123, select: 'foo,bar,baz') == false
         
         // Mixed case with whitespace
-        select.checkInObject('FoO, BAR,   baZ', 'foo') == true
-        select.checkInObject('FoO, BAR,   baZ', ['FOO', 'baz']) == true
-        select.checkInParam('FoO, BAR,   baZ', 'foo') == true
-        select.checkInParam('FoO, BAR,   baZ', ['FOO', 'baz']) == true
+        select.select(pattern: 'foo', select: 'FoO, BAR,   baZ') == true
+        select.select(pattern: ['FOO', 'baz'], select: 'FoO, BAR,   baZ') == true
+        
+        // Complex combinations
+        select.select(pattern: ['foo', 'bar'], select: 'foo,bar', antiSelect: 'baz') == true
+        select.select(pattern: ['foo', 'baz'], select: 'foo,bar', antiSelect: 'baz') == false
     }
 }

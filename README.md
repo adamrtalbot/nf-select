@@ -17,40 +17,49 @@ Alternatively, you can set the `NXF_PLUGINS_TEST_REPOSITORY` environment variabl
 
 Currently, the plugin contains a few small functions:
 
-- `checkInParam`: A method for checking if a single string is within a list of strings. e.g.:
+- `select`: A method for checking if a pattern exists in a select list but not in an antiSelect list. e.g.:
 
 ```groovy
-params.tools = 'foo,bar,baz'
-checkInParam(params.tools, 'foo') // true
-checkInParam(params.tools, 'qux') // false
+// Basic usage with select list
+select(pattern: 'foo'        , select: 'foo,bar,baz')            // true
+select(pattern: ['bar','foo'], select: 'foo,bar,baz')            // true
+select(pattern: 'qux'        , select: 'foo,bar,baz')            // false
 
-params.skip_tools = 'qux'
-checkInParam(params.skip_tools, 'qux') // true
+// Using antiSelect list
+select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')     // false
+select(pattern: 'bar'                   , antiSelect: 'bar,baz') // false
+
+// Default choice when pattern is null
+select(pattern: null, defaultChoice: true)                       // true
+
+// Custom separator
+select(pattern: 'bar', select: 'foo;bar;baz', separator: ';')    // true
 ```
 
-It also contains a `defaultChoice` parameter for setting a value if the checkValue is not set. It must be boolean and by default is `false`:
+The function takes a map with the following parameters:
+
+- `pattern`: Value or List to check (can be String or List)
+- `select`: Comma-separated string of allowed values (empty by default)
+- `antiSelect`: Comma-separated string of excluded values (empty by default)
+- `defaultChoice`: If true, return true when pattern is null (default: false)
+- `separator`: The separator used in the select/antiSelect strings (default: comma)
+
+Note: If both `select` and `antiSelect` are empty, the function will return true for any non-null pattern.
+
+Furthermore, nf-select contains additional utility functions:
+
+- `containsIgnoreCase`: A method for checking if a string exists in a list or matches another string, ignoring case sensitivity. e.g.:
 
 ```groovy
-checkInParam(params.tools, null, defaultChoice = true) // true
-```
+// List comparison
+containsIgnoreCase(['Hello', 'World'], 'hello')    // true
+containsIgnoreCase(['Hello', 'World'], 'WORLD')    // true
+containsIgnoreCase(['Hello', 'World'], 'notfound') // false
 
-Finally it includes a `separator` parameter for setting the separator for the list of strings. By default it is a comma:
-
-```groovy
-params.tools = "foo|bar|baz"
-checkInParam(params.tools, "foo", defaultChoice = false, separator = "|")
-```
-
-In addition to `checkInParam` there is an alias `checkInObject` which just is a more accurate name for the same thing.
-
-Furthermore, nf-select contains an additional function:
-
-- `containsIgnoreCase`: A method for checking if a single string is within an array or a single string. e.g.:
-
-```groovy
-containsIgnoreCase('foo,bar,baz', 'foo') // true
-containsIgnoreCase('foo'        , 'foo') // true
-containsIgnoreCase('bar,baz'    , 'foo') // true
+// String comparison
+containsIgnoreCase('Hello', 'hello') // true
+containsIgnoreCase('World', 'WORLD') // true
+containsIgnoreCase('Hello', 'World') // false
 ```
 
 ## Development
@@ -133,8 +142,8 @@ rm -rf .gradle
 This is pretty janky, so I welcome any help.
 
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
+1. Create a feature branch
+1. Submit a pull request
 
 ## License
 
@@ -142,5 +151,5 @@ This project is licensed under the MIT License.
 
 ## Support
 
-* Create an issue: https://github.com/adamrtalbot/nf-select/issues
-* Documentation: https://adamrtalbot.github.io/nf-select
+- Create an issue: https://github.com/adamrtalbot/nf-select/issues
+- Documentation: https://adamrtalbot.github.io/nf-select
