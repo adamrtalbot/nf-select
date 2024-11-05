@@ -74,7 +74,7 @@ class SelectFunctions extends PluginExtensionPoint{
      *    select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // returns true
      *    select(pattern: 'bar', antiSelect: 'bar,baz')                // returns false
      */
-     */    @Function
+    @Function
     boolean select(Map options = null) {
         def pattern           = options?.pattern
         String select         = options?.select        ?: ''
