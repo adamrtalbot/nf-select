@@ -21,19 +21,19 @@ Currently, the plugin contains a few small functions:
 
 ```groovy
 // Basic usage with select list
-select(pattern: 'foo', select: 'foo,bar,baz')                 // true
-select(pattern: ['bar','foo'], select: 'foo,bar,baz')         // true
-select(pattern: 'qux', select: 'foo,bar,baz')                 // false
+select(pattern: 'foo'        , select: 'foo,bar,baz')            // true
+select(pattern: ['bar','foo'], select: 'foo,bar,baz')            // true
+select(pattern: 'qux'        , select: 'foo,bar,baz')            // false
 
 // Using antiSelect list
-select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')  // false
-select(pattern: 'bar', antiSelect: 'bar,baz')                 // false
+select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')     // false
+select(pattern: 'bar'                   , antiSelect: 'bar,baz') // false
 
 // Default choice when pattern is null
-select(pattern: null, defaultChoice: true)                    // true
+select(pattern: null, defaultChoice: true)                       // true
 
 // Custom separator
-select(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // true
+select(pattern: 'bar', select: 'foo;bar;baz', separator: ';')    // true
 ```
 
 The function takes a map with the following parameters:
