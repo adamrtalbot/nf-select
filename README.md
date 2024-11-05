@@ -22,12 +22,12 @@ Currently, the plugin contains a few small functions:
 ```groovy
 // Basic usage with select list
 select(pattern: 'foo', select: 'foo,bar,baz')                 // true
-select(pattern: ['bar','foo'], select: 'foo,bar,baz')        // true
-select(pattern: 'qux', select: 'foo,bar,baz')                // false
+select(pattern: ['bar','foo'], select: 'foo,bar,baz')         // true
+select(pattern: 'qux', select: 'foo,bar,baz')                 // false
 
 // Using antiSelect list
-select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar') // false
-select(pattern: 'bar', antiSelect: 'bar,baz')                // false
+select(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')  // false
+select(pattern: 'bar', antiSelect: 'bar,baz')                 // false
 
 // Default choice when pattern is null
 select(pattern: null, defaultChoice: true)                    // true
@@ -52,8 +52,8 @@ Furthermore, nf-select contains additional utility functions:
 
 ```groovy
 // List comparison
-containsIgnoreCase(['Hello', 'World'], 'hello') // true
-containsIgnoreCase(['Hello', 'World'], 'WORLD') // true
+containsIgnoreCase(['Hello', 'World'], 'hello')    // true
+containsIgnoreCase(['Hello', 'World'], 'WORLD')    // true
 containsIgnoreCase(['Hello', 'World'], 'notfound') // false
 
 // String comparison
@@ -142,8 +142,8 @@ rm -rf .gradle
 This is pretty janky, so I welcome any help.
 
 1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
+1. Create a feature branch
+1. Submit a pull request
 
 ## License
 
@@ -151,5 +151,5 @@ This project is licensed under the MIT License.
 
 ## Support
 
-* Create an issue: https://github.com/adamrtalbot/nf-select/issues
-* Documentation: https://adamrtalbot.github.io/nf-select
+- Create an issue: https://github.com/adamrtalbot/nf-select/issues
+- Documentation: https://adamrtalbot.github.io/nf-select
