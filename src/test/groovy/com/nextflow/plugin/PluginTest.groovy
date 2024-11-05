@@ -115,7 +115,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInObject} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo,bar,baz', 'BAR') )      
+                .of( checkInObject(pattern: 'BAR', select: 'foo,bar,baz') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -129,7 +129,21 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInObject} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo,bar,baz', ['BAR', 'BAZ']) )      
+                .of( checkInObject(pattern: ['BAR', 'BAZ'], select: 'foo,bar,baz') )      
+            '''
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
+        then:
+        result.val == true
+        result.val == Channel.STOP
+    }
+
+    def 'should execute checkInObject with antiSelect' () {
+        when:
+        def SCRIPT = '''
+            include {checkInObject} from 'plugin/nf-select'
+            channel
+                .of( checkInObject(pattern: 'BAR', select: 'foo,bar,baz', antiSelect: 'foo') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -143,7 +157,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInObject} from 'plugin/nf-select'
             channel
-                .of( checkInObject('foo|bar|baz', 'BAR', false, '|') )      
+                .of( checkInObject(pattern: 'BAR', select: 'foo|bar|baz', separator: '|') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -157,7 +171,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInObject} from 'plugin/nf-select'
             channel
-                .of( checkInObject('', 'anything', true) )      
+                .of( checkInObject(pattern: null, defaultChoice: true) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -165,13 +179,12 @@ class PluginTest extends Dsl2Spec{
         result.val == true
         result.val == Channel.STOP
     }
-
     def 'should execute checkInParam with string input' () {
         when:
         def SCRIPT = '''
             include {checkInParam} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo,bar,baz', 'BAR') )      
+                .of( checkInParam(pattern: 'BAR', select: 'foo,bar,baz', defaultChoice: false, separator: ',') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -185,7 +198,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInParam} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo,bar,baz', ['BAR', 'BAZ']) )      
+                .of( checkInParam(pattern: ['BAR', 'BAZ'], select: 'foo,bar,baz', defaultChoice: false, separator: ',') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -199,7 +212,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInParam} from 'plugin/nf-select'
             channel
-                .of( checkInParam('foo|bar|baz', 'BAR', false, '|') )      
+                .of( checkInParam(pattern: 'BAR', select: 'foo|bar|baz', separator: '|') )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -213,7 +226,7 @@ class PluginTest extends Dsl2Spec{
         def SCRIPT = '''
             include {checkInParam} from 'plugin/nf-select'
             channel
-                .of( checkInParam('', 'anything', true) )      
+                .of( checkInParam(pattern: '', select: 'anything', defaultChoice: true) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -227,7 +240,7 @@ class PluginTest extends Dsl2Spec{
             include {checkInParam} from 'plugin/nf-select'
             params.tools = "star"
             channel
-                .of( checkInParam(params.tools, 'star') )      
+                .of( checkInParam(pattern: 'star', select: params.tools, defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -242,7 +255,7 @@ class PluginTest extends Dsl2Spec{
             include {checkInParam} from 'plugin/nf-select'
             params.tools = "star"
             channel
-                .of( checkInParam(params.tools, 'notstar') )      
+                .of( checkInParam(pattern: 'notstar', select: params.tools, defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -257,7 +270,7 @@ class PluginTest extends Dsl2Spec{
             include {checkInParam} from 'plugin/nf-select'
             params.tools = ""
             channel
-                .of( checkInParam(params.tools, 'star') )      
+                .of( checkInParam(pattern: params.tools, select: 'star', defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -272,7 +285,7 @@ class PluginTest extends Dsl2Spec{
             include {checkInParam} from 'plugin/nf-select'
             params.tools = ""
             channel
-                .of( !checkInParam(params.tools, 'star') )      
+                .of( !checkInParam(pattern: params.tools, select: 'star', defaultChoice: false) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -287,7 +300,7 @@ class PluginTest extends Dsl2Spec{
             include {checkInParam} from 'plugin/nf-select'
             params.tools = null
             channel
-                .of( checkInParam(params.tools, 'star', true) )      
+                .of( checkInParam(pattern: params.tools, select: 'star', defaultChoice: true) )      
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
@@ -303,7 +316,8 @@ class PluginTest extends Dsl2Spec{
             params.tools = "foo"
             params.skip_tools = "bar"
             channel
-                .of( checkInParam(params.tools, 'foo') && checkInParam(params.skip_tools, 'bar') )     
+                .of( checkInParam(pattern: 'foo', select: params.tools, defaultChoice: false) && 
+                checkInParam(pattern: 'bar', select: params.skip_tools, defaultChoice: false) )     
             '''
         and:
         def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()

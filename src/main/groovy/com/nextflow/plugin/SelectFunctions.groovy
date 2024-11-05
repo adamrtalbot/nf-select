@@ -54,46 +54,53 @@ class SelectFunctions extends PluginExtensionPoint{
     }
     
     /*
-     * Check if a value exists in a comma-separated parameter string
+     * Check if pattern exists in select list but not in antiSelect list
      *
-     * @param parameter   Comma-separated string to search in
-     * @param checkValue  Value to search for (can be String or List)
-     * @param defaultTrue If true, return true when parameter is null or empty
-     * @param separator   The separator used in the parameter string (default is comma)
-     * @return           true if checkValue exists in parameter, false otherwise
+     * @param pattern       Value or List to check (can be String or List)
+     * @param select        Comma-separated string of allowed values
+     * @param antiSelect    Comma-separated string of excluded values
+     * @param defaultChoice If true, return true when pattern is null (default: false)
+     * @param separator     The separator used in the select/antiSelect strings (default: comma)
+     * @return              true if pattern matches select criteria and not antiSelect, false otherwise
      *
      * Using @Function annotation allows this function to be imported from the pipeline script
      * 
      * Example:
-     *    checkInParam('foo,bar,baz', 'BAR')               // returns true
-     *    checkInParam('foo,bar,baz', ['BAR'])             // returns true
-     *    checkInParam('foo,bar,baz', 'notfound')          // returns false
-     *    checkInParam('foo,bar,baz', 'missing')           // returns false (default)
-     *    checkInParam('foo,bar,baz', 'missing', true)     // returns true
-     *    checkInParam('', 'anything', true)               // returns true
-     *    checkInParam(null, 'anything', true)             // returns true
-     *    checkInParam('foo,bar,baz', 'bar')               // uses default comma separator
-     *    checkInParam('foo;bar;baz', 'bar', false, ';')   // uses semicolon separator
-     *    checkInParam('foo|bar|baz', 'bar', false, '|')   // uses pipe separator
-     */
-    @Function
-    boolean checkInObject(String parameter, Object checkValue, boolean defaultChoice = false, String separator = ',') {
-        if (!parameter) return defaultChoice
-        
-        List<String> parameterList = parameter.tokenize(separator)*.trim()
-        
-        if (checkValue instanceof List) {
-            return checkValue.any { value -> containsIgnoreCase(parameterList, value.toString()) }
-        } else if (checkValue instanceof String) {
-            return containsIgnoreCase(parameterList, checkValue.toString())
+     *    checkInObject(pattern: 'bar', select: 'foo,bar,baz')                 // returns true
+     *    checkInObject(pattern: ['bar','foo'], select: 'foo,bar,baz')         // returns true
+     *    checkInObject(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar')  // returns false
+     *    checkInObject(pattern: 'baz', select: 'foo,bar')                     // returns false
+     *    checkInObject(pattern: null, defaultChoice: true)                    // returns true
+     *    checkInObject(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // returns true
+     *    checkInObject(pattern: 'bar', antiSelect: 'bar,baz')                 // returns false
+     */    @Function
+    boolean checkInObject(Map options = null) {
+        def pattern           = options?.pattern
+        String select         = options?.select        ?: ''
+        String antiSelect     = options?.antiSelect    ?: ''
+        boolean defaultChoice = options?.defaultChoice ?: false
+        String separator      = options?.separator     ?: ','
+
+        if (pattern == null || pattern == '') return defaultChoice
+
+        List<String> selectList = select ? select.tokenize(separator).collect{it.trim()} : []
+        List<String> antiSelectList = antiSelect ? antiSelect.tokenize(separator).collect{it.trim()} : []
+
+        if (pattern instanceof List) {
+            return pattern.every { item ->
+                (selectList.isEmpty() || containsIgnoreCase(selectList, item.toString())) &&
+                (antiSelectList.isEmpty() || !containsIgnoreCase(antiSelectList, item.toString()))
+            }
+        } else if (pattern instanceof String) {
+            return (selectList.isEmpty() || containsIgnoreCase(selectList, pattern.toString())) &&
+                   (antiSelectList.isEmpty() || !containsIgnoreCase(antiSelectList, pattern.toString()))
         }
-        
+
         return defaultChoice
     }
-
     @Function
-    boolean checkInParam(String parameter, Object checkValue, boolean defaultChoice = false, String separator = ',') {
-        return checkInObject(parameter, checkValue, defaultChoice, separator)
+    boolean checkInParam(Map options = null) {
+        return checkInObject(options)
     }
 
 }

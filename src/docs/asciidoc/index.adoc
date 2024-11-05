@@ -20,43 +20,53 @@ Alternatively, you can set the `NXF_PLUGINS_TEST_REPOSITORY` environment variabl
 
 Currently, the plugin contains a few small functions:
 
-- `checkInParam`: A method for checking if a single string is within a list of strings. e.g.:
-[source,groovy]
-----
-params.tools = 'foo,bar,baz'
-checkInParam(params.tools, 'foo') // true
-checkInParam(params.tools, 'qux') // false
-
-params.skip_tools = 'qux'
-checkInParam(params.skip_tools, 'qux') // true
-----
-
-It also contains a `defaultChoice` parameter for setting a value if the checkValue is not set. It must be boolean and by default is `false`:
+- `checkInParam`: A method for checking if a pattern exists in a select list but not in an antiSelect list. e.g.:
 
 [source,groovy]
 ----
-checkInParam(params.tools, null, defaultChoice = true) // true
+// Basic usage with select list
+checkInParam(pattern: 'foo', select: 'foo,bar,baz')                 // true
+checkInParam(pattern: ['bar','foo'], select: 'foo,bar,baz')        // true
+checkInParam(pattern: 'qux', select: 'foo,bar,baz')                // false
+
+// Using antiSelect list
+checkInParam(pattern: 'bar', select: 'foo,bar', antiSelect: 'bar') // false
+checkInParam(pattern: 'bar', antiSelect: 'bar,baz')                // false
+
+// Default choice when pattern is null
+checkInParam(pattern: null, defaultChoice: true)                    // true
+
+// Custom separator
+checkInParam(pattern: 'bar', select: 'foo;bar;baz', separator: ';') // true
 ----
 
-Finally it includes a `separator` parameter for setting the separator for the list of strings. By default it is a comma:
+The function takes a map with the following parameters:
+
+- `pattern`: Value or List to check (can be String or List)
+- `select`: Comma-separated string of allowed values (empty by default)
+- `antiSelect`: Comma-separated string of excluded values (empty by default)
+- `defaultChoice`: If true, return true when pattern is null (default: false)
+- `separator`: The separator used in the select/antiSelect strings (default: comma)
+
+NOTE: If both `select` and `antiSelect` are empty, the function will return true for any non-null pattern.
+
+In addition to `checkInParam` there is an alias `checkInObject` which provides the same functionality.
+
+Furthermore, nf-select contains additional utility functions:
+
+- `containsIgnoreCase`: A method for checking if a string exists in a list or matches another string, ignoring case sensitivity. e.g.:
 
 [source,groovy]
 ----
-params.tools = "foo|bar|baz"
-checkInParam(params.tools, "foo", defaultChoice = false, separator = "|")
-----
+// List comparison
+containsIgnoreCase(['Hello', 'World'], 'hello') // true
+containsIgnoreCase(['Hello', 'World'], 'WORLD') // true
+containsIgnoreCase(['Hello', 'World'], 'notfound') // false
 
-In addition to `checkInParam` there is an alias `checkInObject` which just is a more accurate name for the same thing.
-
-Furthermore, nf-select contains an additional function:
-
-- `containsIgnoreCase`: A method for checking if a single string is within an array or a single string. e.g.:
-
-[source,groovy]
-----
-containsIgnoreCase('foo,bar,baz', 'foo') // true
-containsIgnoreCase('foo'        , 'foo') // true
-containsIgnoreCase('bar,baz'    , 'foo') // true
+// String comparison
+containsIgnoreCase('Hello', 'hello') // true
+containsIgnoreCase('World', 'WORLD') // true
+containsIgnoreCase('Hello', 'World') // false
 ----
 
 == Development
@@ -70,9 +80,7 @@ git clone https://github.com/adamrtalbot/nf-select.git
 cd nf-select
 ----
 
-=== Building and Testing
-
-First, check it builds:
+2. Check it builds:
 
 * Build the plugin:
 [source,bash]
@@ -80,21 +88,20 @@ First, check it builds:
 make build
 ----
 
-After that, develop as normal. Here is a brief description of the useful files:
+3. Develop as normal. Here is a brief description of the useful files:
 
-- [SelectFunctions.groovy](src/main/groovy/com/nextflow/plugin/SelectFunctions.groovy): The main functions of the plugin. This is probably the file you want to modify.
-- [SelectPlugin.groovy](src/main/groovy/com/nextflow/plugin/SelectPlugin.groovy): The main plugin initialisation file.
-- [ExampleFunctionsTest.groovy](./src/test/groovy/com/nextflow/plugin/ExampleFunctionsTest.groovy): Tests for the function. Think of these as your "Groovy" unit tests.
-- [PluginTest.groovy](./src/test/groovy/com/nextflow/plugin/PluginTest.groovy): Plugin tests which write temporary Nextflow and run them. Jorge has made a pretty cool mock of Nextflow which means you don't need 1 million Nextflow scripts and it's very ligthweight. This is the "Nextflow" unit tests.
+- link:src/main/groovy/com/nextflow/plugin/SelectFunctions.groovy[SelectFunctions.groovy]: The main functions of the plugin. This is probably the file you want to modify.
+- link:src/main/groovy/com/nextflow/plugin/SelectPlugin.groovy[SelectPlugin.groovy]: The main plugin initialisation file.
+- link:./src/test/groovy/com/nextflow/plugin/ExampleFunctionsTest.groovy[ExampleFunctionsTest.groovy]: Tests for the function. Think of these as your "Groovy" unit tests.
+- link:./src/test/groovy/com/nextflow/plugin/PluginTest.groovy[PluginTest.groovy]: Plugin tests which write temporary Nextflow and run them. Jorge has made a pretty cool mock of Nextflow which means you don't need 1 million Nextflow scripts and it's very ligthweight. This is the "Nextflow" unit tests.
 
-
-* Run tests:
+4. Run tests:
 [source,bash]
 ----
 make test
 ----
 
-* Install locally for testing:
+5. Install locally for testing:
 [source,bash]
 ----
 make install
@@ -102,13 +109,14 @@ make install
 
 === Creating a Release
 
-Adapted from [https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md](https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md)
+Adapted from https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md[https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md]
 
 - Update the `gradle.properties` file
 - On Github actions, run the release pipeline and set the correct version
 - Double check that the details are right
 
-```json
+[source,json]
+----
 {
     "version": "0.0.1dev",
     "date": "2024-11-03T19:26:25.767304Z",
@@ -116,26 +124,28 @@ Adapted from [https://github.com/stevekm/nf-niceutils/blob/main/NOTES.md](https:
     "requires": ">=22.10.0",
     "sha512sum": "b2d269eedbc1722089e8585cde2db998cb52e8981ae5a4c5b45a596a2f4565e5ca65a38157ae7d765c585274bbb13dd652b31e5f3769221c06f286131b333056"
 }
-```
+----
 
-- Grab the JSON and add it to the [Nextflow Plugins Registry](https://github.com/nextflow-io/plugins/) or your private fork, my fork of the registry is here https://github.com/adamrtalbot/plugin
+- Grab the JSON and add it to the https://github.com/nextflow-io/plugins/[Nextflow Plugins Registry] or your private fork, my fork of the registry is here https://github.com/adamrtalbot/plugin
 
 To test it out, on another system without the plugin installed (but this repo cloned), run this
 
-```bash
+[source,bash]
+----
 VERSION=$(grep 'version' gradle.properties | cut -d'=' -f2) NXF_PLUGINS_TEST_REPOSITORY=https://raw.githubusercontent.com/adamrtalbot/plugins/refs/heads/main/plugins.json 
 nextflow run src/test/nextflow/main.nf -c <(echo "plugins { id 'nf-select@${VERSION}' }")
-```
+----
 
-## Extras
+== Extras
 
 If something goes wrong, try this and start again
 
-```bash
+[source,bash]
+----
 ./gradlew clean
 ./gradlew build
 rm -rf .gradle
-```
+----
 
 == Contributing
 
